@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Aluno {
+  id    String @id @default(uuid())
+  nome  String
+  email String @unique
+
+  create_at DateTime    @default(now())
+  update_at DateTime    @updatedAt
+  Matricula Matricula[]
+
+  @@map("alunos")
+}
+
+model Curso {
+  id   String @id @default(uuid())
+  nome String
+
+  create_at    DateTime       @default(now())
+  update_at    DateTime       @updatedAt
+  universidade Universidade[]
+  Matricula    Matricula[]
+
+  @@map("cursos")
+}
+
+model Universidade {
+  id   String @id @default(uuid())
+  name String
+
+  create_at DateTime @default(now())
+  update_at DateTime @updatedAt
+
+  cursos Curso? @relation(fields: [cursoId], references: [id])
+
+  cursoId   String?
+  alunoId   String?
+  Matricula Matricula[]
+}
+
+model Matricula {
+  id             String       @id @default(uuid())
+  aluno          Aluno        @relation(fields: [alunoId], references: [id])
+  alunoId        String
+  curso          Curso        @relation(fields: [cursoId], references: [id])
+  cursoId        String
+  universidade   Universidade @relation(fields: [universidadeId], references: [id])
+  universidadeId String
+
+  create_at DateTime @default(now())
+  update_at DateTime @updatedAt
+
+  @@map("matriculasAlunos")
+}
